@@ -8,6 +8,10 @@ var express     = require("express"),
 
 mongoose.connect("mongodb://localhost:27017/yelp_camp", {useNewUrlParser: true, useUnifiedTopology: true });
 app.use(bodyParser.urlencoded({extended:true}));
+// __dirname is the directory on which this script is running
+// Serve public directory for using stylesheet
+app.use(express.static(__dirname + "/public"));
+
 app.set("view engine", "ejs");
 // Seeding the Database means removing all data that we have already and add a pre defined data to the database
 //seedDB();
