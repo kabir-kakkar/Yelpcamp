@@ -10,7 +10,7 @@ mongoose.connect("mongodb://localhost:27017/yelp_camp", {useNewUrlParser: true, 
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine", "ejs");
 // Seeding the Database means removing all data that we have already and add a pre defined data to the database
-seedDB();
+//seedDB();
 
 app.get("/", function(req, res){
     res.render ("landing.ejs");
