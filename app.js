@@ -146,6 +146,21 @@ app.post("/register", function(req, res){
     });
 });
 
+// SHOW LOG IN FORM
+app.get("/login", function(req, res){
+    res.render("login.ejs");
+});
+
+// POST REQUEST FOR LOG IN
+// app.post ("/route", middleware, callbackfunction)
+app.post ("/login", passport.authenticate("local", 
+    {
+        successRedirect: "/campgrounds",
+        failureRedirect: "/login"
+    }), function(req, res){
+            // THIS CALLBACK DOESN'T DO ANYTHING
+});
+
 app.listen(3000, function(){
     console.log("The YelpCamp Server Has Started!");
  });
