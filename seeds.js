@@ -1,7 +1,7 @@
 var mongoose = require("mongoose");
 var Campground = require("./models/campgrounds.js");
 var Comment   = require("./models/comment.js");
- 
+
 var data = [
     {
         name: "Cloud's Rest", 
@@ -60,5 +60,5 @@ function seedDB(){
         });
     }); 
 }
- 
+
 module.exports = seedDB;

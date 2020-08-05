@@ -7,6 +7,7 @@ var express         = require("express"),
     Campground      = require("./models/campgrounds.js"),
     Comment         = require("./models/comment.js"),
     User            = require ("./models/user.js"),
+    removeAllUsers  = require ("./seedUser.js"),
     seedDB          = require("./seeds");
 
 mongoose.connect("mongodb://localhost:27017/yelp_camp", {useNewUrlParser: true, useUnifiedTopology: true });
@@ -18,6 +19,7 @@ app.use(express.static(__dirname + "/public"));
 app.set("view engine", "ejs");
 // Seeding the Database means removing all data that we have already and add a pre defined data to the database
 //seedDB();
+//removeAllUsers(); // This code removes all Users from the database
 
 //PASSPORT CONFIGURATION
 app.use(require("express-session")({
@@ -27,6 +29,15 @@ app.use(require("express-session")({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+// This is a middleware that we pass through every route 
+// as we require the data of the user to be passed in the Nav Bar present in the header
+// of every ejs page. This is possible if we pass the data of the user through every route
+app.use (function(req, res, next){
+    res.locals.currentUser = req.user;
+    next();
+});
+
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
@@ -78,7 +89,7 @@ app.get("/campgrounds/:id", function(req, res){
         if(err){
             console.log(err);
         } else {
-            console.log (foundCampground);
+            //console.log (foundCampground);
             //render show template with that campground
             res.render("campgrounds/show.ejs", {campground: foundCampground});
         }
