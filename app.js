@@ -1,10 +1,13 @@
-var express     = require("express"),
-    app         = express(),
-    bodyParser  = require("body-parser"),
-    mongoose    = require("mongoose"),
-    Campground = require("./models/campgrounds.js"),
-    Comment = require("./models/comment.js"),
-    seedDB     = require("./seeds")
+var express         = require("express"),
+    app             = express(),
+    bodyParser      = require("body-parser"),
+    mongoose        = require("mongoose"),
+    passport        = require ("passport"),
+    LocalStrategy   = require ("passport-local"),
+    Campground      = require("./models/campgrounds.js"),
+    Comment         = require("./models/comment.js"),
+    User            = require ("./models/user.js"),
+    seedDB          = require("./seeds");
 
 mongoose.connect("mongodb://localhost:27017/yelp_camp", {useNewUrlParser: true, useUnifiedTopology: true });
 app.use(bodyParser.urlencoded({extended:true}));
