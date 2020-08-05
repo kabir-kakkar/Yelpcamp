@@ -90,7 +90,10 @@ app.get("/campgrounds/:id", function(req, res){
 // COMMENTS ROUTES
 // ====================
 
-app.get("/campgrounds/:id/comments/new", function(req, res){
+// when a user reaches this route, our middleware isLoggedIn kicks in
+// if the user is logged in, it calls next, which will show the add a comment form
+// if the user is not logged in, then we redirect to "/login" 
+app.get("/campgrounds/:id/comments/new", isLoggedIn, function(req, res){
     // find campground by id
     Campground.findById(req.params.id, function(err, campground){
         if(err){
@@ -101,7 +104,9 @@ app.get("/campgrounds/:id/comments/new", function(req, res){
     });
 });
 
-app.post("/campgrounds/:id/comments", function(req, res){
+// The isLoggedIn middleware is added here as someone could just 
+// send a post request through postman and add a comment
+app.post("/campgrounds/:id/comments", isLoggedIn, function(req, res){
    //lookup campground using ID
    Campground.findById(req.params.id, function(err, campground){
        if(err){
@@ -160,6 +165,23 @@ app.post ("/login", passport.authenticate("local",
     }), function(req, res){
             // THIS CALLBACK DOESN'T DO ANYTHING
 });
+
+// LOG OUT ROUTE
+app.get("/logout", function(req, res){
+    // Passport exposes a logout() function on req (also aliased as logOut()) 
+    //that can be called from any route handler which needs to terminate a login session. 
+    //Invoking logout() will remove the req.user property and clear the login session (if any).
+    req.logout();
+    res.redirect("/campgrounds");
+});
+
+//MIDDLEWARE
+function isLoggedIn (req, res, next){
+    if (req.isAuthenticated()){
+        return next();
+    }
+    res.redirect("/login");
+}
 
 app.listen(3000, function(){
     console.log("The YelpCamp Server Has Started!");
