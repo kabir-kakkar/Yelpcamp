@@ -4,6 +4,7 @@ var express         = require("express"),
     mongoose        = require("mongoose"),
     passport        = require ("passport"),
     LocalStrategy   = require ("passport-local"),
+    methodOverride  = require ("method-override"),
     Campground  = require("./models/campgrounds"),
     Comment     = require("./models/comment"),
     User        = require("./models/user"),
@@ -20,6 +21,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 // __dirname is the directory on which this script is running
 // Serve public directory for using stylesheet
 app.use(express.static(__dirname + "/public"));
+app.use(methodOverride("_method"));
 
 app.set("view engine", "ejs");
 // Seeding the Database means removing all data that we have already and add a pre defined data to the database

@@ -62,6 +62,36 @@ router.get("/:id", function(req, res){
     });
 });
 
+// EDIT CAMPGROUNDS GET ROUTE
+router.get("/:id/edit", function(req, res){
+    //find the campground with provided ID
+    Campground.findById(req.params.id, function(err, foundCampground){
+        if (err) {
+            res.redirect("/campgrounds");
+        } else {
+            res.render("campgrounds/edit", {campground: foundCampground});
+        }
+    })
+});
+
+// EDIT CAMPGROUNDS PUT REQUEST ROUTE FOR UPDATING THE DETAILS OF THE CAMPGROUND
+router.put("/:id", function(req, res){
+    //find and update the correct campground 
+    // redirect to campground's show page
+
+    // We have put campground's name, image and description into one object 
+    // via name=campground[name], etc in campgrounds/edit.ejs so that we get a proper group of campground's 
+    // details which we request it via req.body.campground
+    Campground.findByIdAndUpdate(req.params.id, req.body.campground, function(err, updatedCampground){
+        if (err) {
+            res.redirect("/campgrounds");
+        } else {
+            res.redirect("/campgrounds/" + req.params.id);
+        }
+    });
+});
+
+
 //MIDDLEWARE
 function isLoggedIn (req, res, next){
     if (req.isAuthenticated()){
