@@ -63,25 +63,21 @@ router.get("/:id", function(req, res){
 });
 
 // EDIT CAMPGROUNDS GET ROUTE
-router.get("/:id/edit", function(req, res){
-    //find the campground with provided ID
+router.get("/:id/edit", checkCampgroundOwnership ,function(req, res){
     Campground.findById(req.params.id, function(err, foundCampground){
-        if (err) {
-            res.redirect("/campgrounds");
-        } else {
-            res.render("campgrounds/edit", {campground: foundCampground});
-        }
-    })
+        res.render ("campgrounds/edit", {campground: foundCampground});
+    });
 });
 
 // EDIT CAMPGROUNDS PUT REQUEST ROUTE FOR UPDATING THE DETAILS OF THE CAMPGROUND
-router.put("/:id", function(req, res){
+router.put("/:id", checkCampgroundOwnership, function(req, res){
     //find and update the correct campground 
     // redirect to campground's show page
 
     // We have put campground's name, image and description into one object 
     // via name=campground[name], etc in campgrounds/edit.ejs so that we get a proper group of campground's 
     // details which we request it via req.body.campground
+
     Campground.findByIdAndUpdate(req.params.id, req.body.campground, function(err, updatedCampground){
         if (err) {
             res.redirect("/campgrounds");
@@ -91,6 +87,18 @@ router.put("/:id", function(req, res){
     });
 });
 
+// DESTROY CAMPGROUND ROUTE
+router.delete ("/:id", checkCampgroundOwnership, function(req, res){
+    // This functions finds the campground by id and removes it from the database.
+    Campground.findByIdAndRemove (req.params.id, function(err){
+        if (err) {
+            res.redirect("/campgrounds");
+        } else {
+            res.redirect ("/campgrounds");
+        }
+    })
+});
+
 
 //MIDDLEWARE
 function isLoggedIn (req, res, next){
@@ -98,6 +106,33 @@ function isLoggedIn (req, res, next){
         return next();
     }
     res.redirect("/login");
+}
+
+// MIDDLEWARE TO CHECK IF THE USER IS AUTHORIZED TO EDIT OR DELETE THE CAMPGROUND
+// I.E., TO CHECK IF THAT USER IS THE CORRECT OWNER OF THE CAMPGROUND 
+function checkCampgroundOwnership (req, res, next) {
+    // is user is logged in 
+    if (req.isAuthenticated()) {        
+        //find the campground with provided ID
+       Campground.findById(req.params.id, function(err, foundCampground){
+           if (err) {
+               res.redirect("back");
+           } else {
+               // does user own the campground
+               // foundCampground.author.id is a Mongoose Object and req.user._id is a string 
+               // And hence not the same, therefore comparing both the strings just won't work by '==' or '==='
+               // For this purpose we use a mongoose compare method that is .equals() method
+               if (foundCampground.author.id.equals(req.user._id)){
+                    next();  
+                } else {
+                    res.redirect("back");
+                }
+           }
+       });
+   } else {
+       res.redirect ("back");
+   }  
+
 }
 
 module.exports = router;
