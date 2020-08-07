@@ -5,9 +5,10 @@ var express         = require("express"),
     passport        = require ("passport"),
     LocalStrategy   = require ("passport-local"),
     methodOverride  = require ("method-override"),
-    Campground  = require("./models/campgrounds"),
-    Comment     = require("./models/comment"),
-    User        = require("./models/user"),
+    Campground      = require("./models/campgrounds"),
+    Comment         = require("./models/comment"),
+    User            = require("./models/user"),
+    flash           = require("connect-flash"),
     removeAllUsers  = require ("./seedUser.js"),
     seedDB          = require("./seeds");
 
@@ -22,8 +23,9 @@ app.use(bodyParser.urlencoded({extended:true}));
 // Serve public directory for using stylesheet
 app.use(express.static(__dirname + "/public"));
 app.use(methodOverride("_method"));
-
 app.set("view engine", "ejs");
+app.use(flash());
+
 // Seeding the Database means removing all data that we have already and add a pre defined data to the database
 //seedDB();
 //removeAllUsers(); // This code removes all Users from the database
@@ -45,6 +47,8 @@ passport.deserializeUser(User.deserializeUser());
 // of every ejs page. This is possible if we pass the data of the user through every route
 app.use (function(req, res, next){
     res.locals.currentUser = req.user;
+    res.locals.error       = req.flash ("error");
+    res.locals.success     = req.flash ("success");
     next();
 });
 
