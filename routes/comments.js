@@ -2,6 +2,7 @@ var express = require("express");
 var router  = express.Router({mergeParams: true});
 var Campground = require("../models/campgrounds");
 var Comment = require("../models/comment");
+var middleware = require("../middleware/index.js");
 
 // ====================
 // COMMENTS ROUTES
@@ -10,7 +11,7 @@ var Comment = require("../models/comment");
 // when a user reaches this route, our middleware isLoggedIn kicks in
 // if the user is logged in, it calls next, which will show the add a comment form
 // if the user is not logged in, then we redirect to "/login" 
-router.get("/new", isLoggedIn, function(req, res){
+router.get("/new", middleware.isLoggedIn, function(req, res){
     // find campground by id
     Campground.findById(req.params.id, function(err, campground){
         if(err){
@@ -23,7 +24,7 @@ router.get("/new", isLoggedIn, function(req, res){
 
 // The isLoggedIn middleware is added here as someone could just 
 // send a post request through postman and add a comment
-router.post("/", isLoggedIn, function(req, res){
+router.post("/", middleware.isLoggedIn, function(req, res){
    //lookup campground using ID
    Campground.findById(req.params.id, function(err, campground){
        if(err){
@@ -52,7 +53,7 @@ router.post("/", isLoggedIn, function(req, res){
 });
 
 // Comment Edit Route
-router.get("/:comment_id/edit", checkCommentsOwnership, function(req, res){
+router.get("/:comment_id/edit", middleware.checkCommentsOwnership, function(req, res){
     // Here we first find the id of the Comment
     Comment.findById(req.params.comment_id, function(err, foundComment){
         if (err) {
@@ -66,7 +67,7 @@ router.get("/:comment_id/edit", checkCommentsOwnership, function(req, res){
 
 // COMMENT UPDATE ROUTE
 // We update it to /:comment_id 
-router.put ("/:comment_id", checkCommentsOwnership, function(req, res){
+router.put ("/:comment_id", middleware.checkCommentsOwnership, function(req, res){
     // We find the comment by id and make a update request
     // by passing in the comment_id as first parameter,
     // the body's comment as second parameter (See edit.ejs, comment[text], comment[author] is defined)
@@ -82,7 +83,7 @@ router.put ("/:comment_id", checkCommentsOwnership, function(req, res){
 });
 
 //COMMENT DESTROY ROUTES
-router.delete("/:comment_id", checkCommentsOwnership, function(req, res){
+router.delete("/:comment_id", middleware.checkCommentsOwnership, function(req, res){
     //findByIdAndRemove
     Comment.findByIdAndRemove(req.params.comment_id, function(err){
         if (err) {
@@ -94,39 +95,5 @@ router.delete("/:comment_id", checkCommentsOwnership, function(req, res){
         }
     })
 });
-
-// MIDDLEWARE TO CHECK IF THE USER IS AUTHORIZED TO EDIT OR DELETE THE CAMPGROUND
-// I.E., TO CHECK IF THAT USER IS THE CORRECT OWNER OF THE CAMPGROUND 
-function checkCommentsOwnership (req, res, next) {
-    // is user is logged in 
-    if (req.isAuthenticated()) {        
-        //find the campground with provided ID
-       Comment.findById(req.params.comment_id, function(err, foundComment){
-           if (err) {
-               res.redirect("back");
-           } else {
-               // does user own the comment
-               // foundComment.author.id is a Mongoose Object and req.user._id is a string 
-               // And hence not the same, therefore comparing both the strings just won't work by '==' or '==='
-               // For this purpose we use a mongoose compare method that is .equals() method
-               if (foundComment.author.id.equals(req.user._id)){
-                    next();  
-                } else {
-                    res.redirect("back");
-                }
-           }
-       });
-   } else {
-       res.redirect ("back");
-   }  
-}
-
-//MIDDLEWARE
-function isLoggedIn (req, res, next){
-    if (req.isAuthenticated()){
-        return next();
-    }
-    res.redirect("/login");
-}
 
 module.exports = router;
