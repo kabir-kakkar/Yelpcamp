@@ -104,3 +104,13 @@ app.listen(PORT, function() {
     console.log("listening on http://localhost:3000/");
 });
 ```
+
+### Heroku Deploying:
+
+1. git init
+2. git add .
+3. git commit -m "Commited"
+
+4. heroku Create
+5. git push heroku master
+6. go to the deployed link.
