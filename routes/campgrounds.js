@@ -31,12 +31,13 @@ router.post("/", middleware.isLoggedIn, function (req, res){
     var name = req.body.name; // fetch name of post
     var image = req.body.image; // fetch image of post
     var description = req.body.description;  // fetch description of post
+    var price = req.body.price; // fetch price of post
     var author = {
         id: req.user._id,
         username: req.user.username
     } // Fetch Username and ID from User
      // Put it all into one object and push it later on
-    var newCampground = {name: name, image: image, description: description, author: author};
+    var newCampground = {name: name, image: image, description: description, author: author, price: price};
     
     // Create a new campground and save to DB
     Campground.create(newCampground, function(err, newlyCreated){
